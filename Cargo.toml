@@ -8,3 +8,8 @@ repository = "https://github.com/hey-jj/count-words"
 readme = "README.md"
 
 [dependencies]
+
+[dev-dependencies]
+# Load the golden corpus (tests/fixtures/cases.json) into typed structs.
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
