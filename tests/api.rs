@@ -1,7 +1,7 @@
 //! The three entry points share one core. These tests pin that relationship and
 //! the default-config ergonomics.
 
-use count_words::{words_count, words_detect, words_split, Config};
+use count_words::{count_words, detect_words, split_words, Config};
 
 #[test]
 fn three_functions_agree() {
@@ -15,19 +15,19 @@ fn three_functions_agree() {
     ];
     for input in inputs {
         let cfg = Config::default();
-        let detected = words_detect(input, &cfg);
+        let detected = detect_words(input, &cfg);
         assert_eq!(
-            words_count(input, &cfg),
-            detected.count,
+            count_words(input, &cfg),
+            detected.count(),
             "count for {input:?}"
         );
         assert_eq!(
-            words_split(input, &cfg),
+            split_words(input, &cfg),
             detected.words,
             "split for {input:?}"
         );
         assert_eq!(
-            detected.count,
+            detected.count(),
             detected.words.len(),
             "count is len for {input:?}"
         );
@@ -48,5 +48,5 @@ fn config_is_constructible_with_struct_update() {
         punctuation_as_breaker: true,
         ..Default::default()
     };
-    assert_eq!(words_count("Google's home", &cfg), 3);
+    assert_eq!(count_words("Google's home", &cfg), 3);
 }

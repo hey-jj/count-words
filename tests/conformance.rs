@@ -2,10 +2,10 @@
 //! known-good results across many languages and config combinations. The table
 //! lives in `fixtures/cases.json` and is embedded at compile time.
 //!
-//! Each count case checks `words_count`. Each words case checks the full word
+//! Each count case checks `count_words`. Each words case checks the full word
 //! list from all three entry points, which is stricter than checking length.
 
-use count_words::{words_count, words_detect, words_split, Config};
+use count_words::{count_words, detect_words, split_words, Config};
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -65,7 +65,7 @@ fn count_cases_match() {
     assert!(corpus.count_cases.len() >= 110, "expected the full corpus");
     for case in &corpus.count_cases {
         let cfg = to_config(&case.config);
-        let got = words_count(&case.input, &cfg);
+        let got = count_words(&case.input, &cfg);
         assert_eq!(got, case.expected, "count mismatch for {}", case.name);
     }
 }
@@ -77,17 +77,17 @@ fn words_cases_match() {
     for case in &corpus.words_cases {
         let cfg = to_config(&case.config);
 
-        let split = words_split(&case.input, &cfg);
+        let split = split_words(&case.input, &cfg);
         assert_eq!(split, case.expected, "split mismatch for {}", case.name);
 
-        let detected = words_detect(&case.input, &cfg);
+        let detected = detect_words(&case.input, &cfg);
         assert_eq!(
             detected.words, case.expected,
             "detect.words mismatch for {}",
             case.name
         );
         assert_eq!(
-            detected.count,
+            detected.count(),
             case.expected.len(),
             "detect.count mismatch for {}",
             case.name

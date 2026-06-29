@@ -3,7 +3,7 @@
 //! property runs over many random strings drawn from the BMP, which matches the
 //! code-unit behavior the heuristic targets.
 
-use count_words::{words_count, words_detect, words_split, Config};
+use count_words::{count_words, detect_words, split_words, Config};
 
 /// Tiny xorshift generator. Deterministic so failures reproduce.
 struct Rng(u64);
@@ -60,8 +60,8 @@ fn count_equals_split_len() {
         let s = random_string(&mut rng, 24);
         for cfg in configs() {
             assert_eq!(
-                words_count(&s, &cfg),
-                words_split(&s, &cfg).len(),
+                count_words(&s, &cfg),
+                split_words(&s, &cfg).len(),
                 "count != split.len() for {s:?}"
             );
         }
@@ -74,10 +74,10 @@ fn three_functions_consistent() {
     for _ in 0..2000 {
         let s = random_string(&mut rng, 24);
         for cfg in configs() {
-            let d = words_detect(&s, &cfg);
-            assert_eq!(words_count(&s, &cfg), d.count);
-            assert_eq!(words_split(&s, &cfg), d.words);
-            assert_eq!(d.count, d.words.len());
+            let d = detect_words(&s, &cfg);
+            assert_eq!(count_words(&s, &cfg), d.count());
+            assert_eq!(split_words(&s, &cfg), d.words);
+            assert_eq!(d.count(), d.words.len());
         }
     }
 }
@@ -99,7 +99,7 @@ fn ascii_letters_split_on_whitespace() {
         }
         let s = parts.join(" ");
         assert_eq!(
-            words_count(&s, &Config::default()),
+            count_words(&s, &Config::default()),
             parts.len(),
             "{s:?} should split into {} runs",
             parts.len()
@@ -115,7 +115,7 @@ fn each_han_char_is_one_word() {
         let n = 1 + rng.below(10);
         let s: String = (0..n).map(|_| han[rng.below(han.len())]).collect();
         assert_eq!(
-            words_count(&s, &Config::default()),
+            count_words(&s, &Config::default()),
             n,
             "{s:?} has {n} Han chars"
         );
@@ -134,7 +134,7 @@ fn appending_punctuation_never_raises_default_count() {
         let mark = marks[rng.below(marks.len())];
         let with_mark = format!("{s}{mark}");
         assert!(
-            words_count(&with_mark, &default) <= words_count(&s, &default),
+            count_words(&with_mark, &default) <= count_words(&s, &default),
             "appending {mark:?} raised the count for {s:?}"
         );
     }

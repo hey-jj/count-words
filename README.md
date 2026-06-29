@@ -13,11 +13,11 @@ language.
   This counts Arabic, Hebrew, Thai, and most Indic text by whitespace splitting.
 
 ```rust
-use count_words::words_count;
+use count_words::count_words;
 
-assert_eq!(words_count("Hello World", &Default::default()), 2);
-assert_eq!(words_count("你好，世界", &Default::default()), 4);
-assert_eq!(words_count("Hello \"世界\"", &Default::default()), 3);
+assert_eq!(count_words("Hello World", &Default::default()), 2);
+assert_eq!(count_words("你好，世界", &Default::default()), 4);
+assert_eq!(count_words("Hello \"世界\"", &Default::default()), 3);
 ```
 
 ## Installation
@@ -32,36 +32,36 @@ count-words = "0.1"
 Three functions share one core.
 
 ```rust
-use count_words::{words_count, words_split, words_detect, Config};
+use count_words::{count_words, split_words, detect_words, Config};
 
 let cfg = Config::default();
 
 // Just the count.
-let n: usize = words_count("Hello, 你好。", &cfg);
+let n: usize = count_words("Hello, 你好。", &cfg);
 assert_eq!(n, 3);
 
 // Just the word list.
-let words: Vec<String> = words_split("100世界", &cfg);
+let words: Vec<String> = split_words("100世界", &cfg);
 assert_eq!(words, vec!["100", "世", "界"]);
 
 // Both at once.
-let result = words_detect("Hello, 世界 100", &cfg);
-assert_eq!(result.count, 4);
+let result = detect_words("Hello, 世界 100", &cfg);
+assert_eq!(result.count(), 4);
 assert_eq!(result.words, vec!["Hello", "世", "界", "100"]);
 ```
 
-`count` always equals `words.len()`.
+`count()` returns `words.len()`.
 
 ## Config
 
 `Config` changes how punctuation is handled. All fields default to off.
 
 ```rust
-use count_words::{words_count, Config};
+use count_words::{count_words, Config};
 
 // Replace punctuation with a space instead of deleting it.
 let breaker = Config { punctuation_as_breaker: true, ..Default::default() };
-assert_eq!(words_count("Google's home", &breaker), 3);
+assert_eq!(count_words("Google's home", &breaker), 3);
 
 // Skip the built-in punctuation list.
 let bare = Config { disable_default_punctuation: true, ..Default::default() };
@@ -74,7 +74,8 @@ let dash = Config { punctuation: vec!["-".into()], ..Default::default() };
   split a token in two. When off, marks are deleted and the surrounding text joins.
 - `disable_default_punctuation`: when on, the built-in marks are left alone and
   only the custom list is handled.
-- `punctuation`: extra marks, applied after the built-in list, in order.
+- `punctuation`: extra marks, applied after the built-in list, in order. Empty
+  entries are ignored.
 
 ## Behavior notes
 
