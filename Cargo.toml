@@ -1,0 +1,10 @@
+[package]
+name = "count-words"
+version = "0.1.0"
+edition = "2021"
+description = "count words/characters in mixed CJK + Latin multilingual text"
+license = "MIT"
+repository = "https://github.com/hey-jj/count-words"
+readme = "README.md"
+
+[dependencies]
