@@ -1,16 +1,21 @@
 # count-words
 
 Count words in text that mixes scripts: Chinese, Japanese, Korean, Latin,
-Cyrillic, Malayalam, numbers, and punctuation. One heuristic handles every
-language.
+Cyrillic, Malayalam, numbers, and punctuation. One heuristic covers many
+scripts, but it relies on spaces to separate words, so scripts written without
+inter-word spaces are not segmented.
 
 ## Rules
 
 - A run of Latin, Cyrillic, or Malayalam letters between separators is one word.
 - A run of ASCII digits is one word.
 - Each CJK ideograph, Japanese kana, and Korean Hangul character is its own word.
-- A character outside the known blocks falls through to a whole-token fallback.
-  This counts Arabic, Hebrew, Thai, and most Indic text by whitespace splitting.
+- A token made only of characters outside the known blocks survives whole. This
+  counts Arabic, Hebrew, and most Indic text by whitespace splitting. A token
+  that mixes a known script with an unknown one keeps only the known runs and
+  drops the unknown remainder.
+- Scripts written without spaces between words, such as Thai, Lao, and Khmer, are
+  not segmented. A whole sentence scans to one token and counts as one word.
 
 ```rust
 use count_words::count_words;

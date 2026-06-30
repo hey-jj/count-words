@@ -3,9 +3,12 @@
 //! One heuristic counts words across scripts. Each run of Latin, Cyrillic, or
 //! Malayalam letters between separators is one word. Each run of ASCII digits is
 //! one word. Each CJK ideograph, Japanese kana, and Korean Hangul character is
-//! its own word. Characters outside the known ranges fall through to a
-//! whole-token fallback, which is how Arabic, Hebrew, Thai, and most Indic text
-//! get counted by whitespace splitting.
+//! its own word. A token made only of characters outside the known ranges
+//! survives whole. That is how Arabic, Hebrew, and most Indic text get counted
+//! by whitespace splitting. A token that mixes a known script with an unknown
+//! one keeps only the known runs and drops the unknown remainder. Scripts
+//! written without spaces between words, such as Thai, Lao, and Khmer, scan to
+//! one token and count as one word.
 //!
 //! ```
 //! use count_words::count_words;
