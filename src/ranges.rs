@@ -39,7 +39,7 @@ fn is_cjk(c: char) -> bool {
     matches!(c,
         '\u{2E80}'..='\u{2EFF}'  // CJK Radicals Supplement
         | '\u{2F00}'..='\u{2FDF}'  // Kangxi Radicals
-        | '\u{3000}'..='\u{303F}'  // CJK Symbols and Punctuation
+        | '\u{3001}'..='\u{303F}'  // CJK Symbols and Punctuation (U+3000 is whitespace)
         | '\u{31C0}'..='\u{31EF}'  // CJK Strokes
         | '\u{3200}'..='\u{32FF}'  // Enclosed CJK Letters and Months
         | '\u{3300}'..='\u{33FF}'  // CJK Compatibility

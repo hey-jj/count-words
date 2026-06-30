@@ -119,6 +119,17 @@ fn matched_token_drops_unmatched_remainder() {
 }
 
 #[test]
+fn ideographic_space_inside_token_is_not_a_word() {
+    // U+3000 is whitespace, but only the first whitespace run is collapsed. The
+    // ASCII space is the first run, so the U+3000 before the last character stays
+    // embedded in the token. It must not count as a word.
+    assert_eq!(
+        split_words("中 文\u{3000}字", &default()),
+        vec!["中", "文", "字"]
+    );
+}
+
+#[test]
 fn en_dash_stripped_by_symbol_block() {
     // U+2013 sits in General Punctuation and is removed, joining the letters.
     assert_eq!(split_words("a\u{2013}b", &default()), vec!["ab"]);
