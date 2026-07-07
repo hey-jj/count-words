@@ -16,14 +16,17 @@ pub(crate) fn is_latin_class(c: char) -> bool {
     matches!(c,
         'a'..='z'
         | 'A'..='Z'
-        | '\u{00C0}'..='\u{00FF}'  // Latin-1 Supplement letters
+        | '\u{00C0}'..='\u{00D6}'  // Latin-1 Supplement letters
+        | '\u{00D8}'..='\u{00F6}'  // Latin-1 Supplement letters
+        | '\u{00F8}'..='\u{00FF}'  // Latin-1 Supplement letters
         | '\u{0100}'..='\u{017F}'  // Latin Extended-A
         | '\u{0180}'..='\u{024F}'  // Latin Extended-B
         | '\u{0250}'..='\u{02AF}'  // IPA Extensions
         | '\u{1E00}'..='\u{1EFF}'  // Latin Extended Additional
         | '\u{0400}'..='\u{04FF}'  // Cyrillic
         | '\u{0500}'..='\u{052F}'  // Cyrillic Supplement
-        | '\u{0D00}'..='\u{0D7F}'  // Malayalam
+        | '\u{0D00}'..='\u{0D65}'  // Malayalam before digits
+        | '\u{0D7A}'..='\u{0D7F}'  // Malayalam chillu letters
     )
 }
 
@@ -66,4 +69,23 @@ fn is_kr(c: char) -> bool {
         | '\u{A960}'..='\u{A97F}'  // Hangul Jamo Extended-A
         | '\u{AC00}'..='\u{D7FF}'  // Hangul Syllables and Jamo Extended-B
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{split_words, Config};
+
+    #[test]
+    fn latin_math_signs_split_latin_runs() {
+        assert_eq!(split_words("a×b", &Config::default()), vec!["a", "b"]);
+        assert_eq!(split_words("a÷b", &Config::default()), vec!["a", "b"]);
+    }
+
+    #[test]
+    fn malayalam_digits_split_letter_runs() {
+        assert_eq!(
+            split_words("a\u{0D67}b", &Config::default()),
+            vec!["a", "b"]
+        );
+    }
 }
