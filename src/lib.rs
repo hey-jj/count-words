@@ -77,14 +77,6 @@ impl WordsResult {
     }
 }
 
-/// Built-in punctuation, stripped unless [`Config::disable_default_punctuation`]
-/// is set. Order matches the sequence of replacements.
-const DEFAULT_PUNCTUATION: &[&str] = &[
-    ",", "，", ".", "。", ":", "：", ";", "；", "[", "]", "【", "】", "{", "｛", "}", "｝", "(",
-    "（", ")", "）", "<", "《", ">", "》", "$", "￥", "!", "！", "?", "？", "~", "～", "'", "’",
-    "\"", "“", "”", "*", "/", "\\", "&", "%", "@", "#", "^", "、",
-];
-
 /// Detect the words in `text`.
 ///
 /// This is the core function. [`count_words`] and [`split_words`] project one
@@ -111,14 +103,13 @@ pub fn detect_words(text: &str, config: &Config) -> WordsResult {
         ""
     };
 
-    // Strip or break on punctuation. Defaults first, then custom entries, each
-    // as a literal substring replaced everywhere.
-    let mut words = text.to_string();
-    if !config.disable_default_punctuation {
-        for p in DEFAULT_PUNCTUATION {
-            words = words.replace(p, replacer);
-        }
-    }
+    // Strip or break on punctuation. Defaults run in one character scan, then
+    // custom entries run as literal substrings replaced everywhere.
+    let mut words = if config.disable_default_punctuation {
+        text.to_string()
+    } else {
+        text.replace(is_default_punctuation, replacer)
+    };
     for p in &config.punctuation {
         // Skip empty entries. str::replace on "" splices the replacer between
         // every character, which is never what a caller means.
@@ -134,13 +125,8 @@ pub fn detect_words(text: &str, config: &Config) -> WordsResult {
     // Collapse only the first whitespace run, then split on the single ASCII
     // space. Tokens that trim to empty are dropped.
     let collapsed = collapse_first_whitespace_run(&words);
-    let tokens = collapsed
-        .split(' ')
-        .filter(|t| !is_blank(t))
-        .collect::<Vec<_>>();
-
     let mut detected: Vec<String> = Vec::new();
-    for token in tokens {
+    for token in collapsed.split(' ').filter(|t| !is_blank(t)) {
         let carry = scan_token(token);
         if carry.is_empty() {
             detected.push(token.to_string());
@@ -150,6 +136,57 @@ pub fn detect_words(text: &str, config: &Config) -> WordsResult {
     }
 
     WordsResult { words: detected }
+}
+
+fn is_default_punctuation(c: char) -> bool {
+    matches!(
+        c,
+        ',' | '，'
+            | '.'
+            | '。'
+            | ':'
+            | '：'
+            | ';'
+            | '；'
+            | '['
+            | ']'
+            | '【'
+            | '】'
+            | '{'
+            | '｛'
+            | '}'
+            | '｝'
+            | '('
+            | '（'
+            | ')'
+            | '）'
+            | '<'
+            | '《'
+            | '>'
+            | '》'
+            | '$'
+            | '￥'
+            | '!'
+            | '！'
+            | '?'
+            | '？'
+            | '~'
+            | '～'
+            | '\''
+            | '’'
+            | '"'
+            | '“'
+            | '”'
+            | '*'
+            | '/'
+            | '\\'
+            | '&'
+            | '%'
+            | '@'
+            | '#'
+            | '^'
+            | '、'
+    )
 }
 
 /// Count the words in `text`.
