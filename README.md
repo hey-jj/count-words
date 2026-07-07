@@ -85,9 +85,11 @@ let dash = Config { punctuation: vec!["-".into()], ..Default::default() };
 ## Behavior notes
 
 - Empty input and whitespace-only input return zero words.
-- General Punctuation (U+2000-U+206F) and Halfwidth/Fullwidth Forms
-  (U+FF00-U+FFEF) are always stripped. This removes smart quotes, dashes,
-  ellipses, fullwidth commas, and fullwidth digits.
+- The punctuation replacement pass runs before General Punctuation
+  (U+2000-U+206F) and Halfwidth/Fullwidth Forms (U+FF00-U+FFEF) are stripped.
+  Marks handled by punctuation replacement can split text when
+  `punctuation_as_breaker` is on. Other characters from those blocks are
+  stripped.
 - Classification uses Basic Multilingual Plane ranges. An astral ideograph or
   emoji is never counted as a CJK word. It survives as a whole token when alone
   and drops out when mixed with covered characters.
